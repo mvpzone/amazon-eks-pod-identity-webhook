@@ -81,19 +81,19 @@ deploy-config: prep-config
 	kubectl apply -f deploy/service.yaml
 	kubectl apply -f deploy/mutatingwebhook-ca-bundle.yaml
 	until kubectl get csr -o \
-		jsonpath='{.items[?(@.spec.username=="system:serviceaccount:default:pod-identity-webhook")].metadata.name}' | \
+		jsonpath='{.items[?(@.spec.username=="system:serviceaccount:pod-identity:pod-identity-webhook")].metadata.name}' | \
 		grep -m 1 "csr-"; \
 		do echo "Waiting for CSR to be created" && sleep 1 ; \
 	done
-	kubectl certificate approve $$(kubectl get csr -o jsonpath='{.items[?(@.spec.username=="system:serviceaccount:default:pod-identity-webhook")].metadata.name}')
+	kubectl certificate approve $$(kubectl get csr -o jsonpath='{.items[?(@.spec.username=="system:serviceaccount:pod-identity:pod-identity-webhook")].metadata.name}')
 
 delete-config:
 	@echo 'Tearing down mutating controller and associated resources...'
-	kubectl delete -f deploy/mutatingwebhook-ca-bundle.yaml
-	kubectl delete -f deploy/service.yaml
-	kubectl delete -f deploy/deployment.yaml
-	kubectl delete -f deploy/auth.yaml
-	kubectl delete secret pod-identity-webhook
+	kubectl delete -f deploy/mutatingwebhook-ca-bundle.yaml --ignore-not-found=true
+	kubectl delete -f deploy/service.yaml --ignore-not-found=true
+	kubectl delete -f deploy/deployment.yaml --ignore-not-found=true
+	kubectl delete -f deploy/auth.yaml --ignore-not-found=true
+	kubectl delete secret -n pod-identity pod-identity-webhook --ignore-not-found=true
 
 clean::
 	rm -rf ./amazon-eks-pod-identity-webhook

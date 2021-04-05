@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pod-identity-webhook
-  namespace: default
+  namespace: pod-identity
 spec:
   replicas: 1
   selector:
@@ -21,7 +21,7 @@ spec:
         command:
         - /webhook
         - --in-cluster
-        - --namespace=default
+        - --namespace=pod-identity
         - --service-name=pod-identity-webhook
         - --tls-secret=pod-identity-webhook
         - --annotation-prefix=eks.amazonaws.com
